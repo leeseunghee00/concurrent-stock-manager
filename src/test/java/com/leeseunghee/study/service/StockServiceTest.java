@@ -74,4 +74,31 @@ class StockServiceTest {
 		// then -- 예상되는 변화 및 결과
 		assertEquals(0, stock.getQuantity());
 	}
+
+
+	@Test
+	public void 동시_100개_요청_synchronized() throws InterruptedException {
+		// given -- 테스트의 상태 설정
+		int threadCount = 100;
+		ExecutorService executorService = Executors.newFixedThreadPool(32);
+		CountDownLatch latch = new CountDownLatch(threadCount);
+
+		// when -- 테스트하고자 하는 행동
+		for (int i = 0; i < threadCount; i++) {
+			executorService.execute(() -> {
+				try {
+					stockService.decrease_1(1L, 1L);
+				} finally {
+					latch.countDown();
+				}
+			});
+		}
+
+		latch.await();
+
+		Stock stock = stockRepository.findById(1L).orElseThrow();
+
+		// then -- 예상되는 변화 및 결과
+		assertEquals(0, stock.getQuantity());
+	}
 }
