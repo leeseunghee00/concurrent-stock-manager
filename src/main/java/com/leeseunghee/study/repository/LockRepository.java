@@ -14,4 +14,3 @@ public interface LockRepository extends JpaRepository<Stock, Long> {
 	@Query(value = "SELECT release_lock(:key)", nativeQuery = true)
 	void releaseLock(String key);
 }
-g
